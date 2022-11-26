@@ -97,3 +97,6 @@ def countNumPossibleFours(board, k):
                     board[i + 3][j + 3] == k or board[i + 3][j + 3] == 0)):
                 num += 1
     return num
+
+def evaluateBoard(board):
+    pass

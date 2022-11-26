@@ -19,7 +19,6 @@ for i in range(NUM_CELLS):
 activeCol = -1
 currPlayer = 1
 AI_ENABLED = False
-# ai = minimax.minimaxAlgorithm(board, depth=1)
 
 while not game_over:
     screen.fill((51, 51, 51))
@@ -42,10 +41,6 @@ while not game_over:
 
                 if not frozen and insertCellIntoBoard(board, activeCol, currPlayer):
                     currPlayer *= -1
-                    # pass into minimax algorithm
-                    # ai.updateBoard(board)
-                    # if (AI_ENABLED and insertCellIntoBoard(board, ai.getBestMoveFromTree(), currPlayer)):
-                    #    currPlayer *= -1
 
     drawBoard(board, screen, activeCol)
 
