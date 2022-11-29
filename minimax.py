@@ -1,8 +1,9 @@
 # makes a tree that goes through the first n possible moves
 # calculates the score
-from settings import *
-from utils import *
 import copy
+import math
+
+from utils import *
 
 
 class minimaxAlgorithm:
@@ -13,25 +14,53 @@ class minimaxAlgorithm:
 
     def updateBoard(self, board):
         self.root.board = board
-        self.__populateTree()
+        self.populateTree()
 
     def getBestMoveFromTree(self):
-        return self.__getBestMoveRec(self.root, 0)
+        return self.__getBestMoveRec(self.root, -1)[0]
 
-    def __getBestMoveRec(self, current, depth):
-        pass
+    def __getBestMoveRec(self, current, playerId):
+        if not current.isParent:
+            return (None, self.__evaluateBoard(current))
+
+        if playerId == -1:
+            # get all children and compare vals
+            oldScore = math.inf
+            bestMove = None
+            for i in range(NUM_COLS):
+                if isinstance(current.children[i], Node):
+                    newMove, newScore = self.__getBestMoveRec(current.children[i], playerId * -1)
+                    if newScore < oldScore and not self.root.board.isColFull(i):
+                        bestMove = i
+                        oldScore = newScore
+            return (bestMove, oldScore)
+
+        elif (playerId == 1):
+            oldScore = -math.inf
+            bestMove = None
+            for i in range(NUM_COLS):
+                if isinstance(current.children[i], Node):
+                    newMove, newScore = self.__getBestMoveRec(current.children[i], playerId * -1)
+                    if newScore > oldScore and not self.root.board.isColFull(i):
+                        bestMove = i
+                        oldScore = newScore
+            return (bestMove, oldScore)
+
     def populateTree(self):
         self.__populateTreeRec(self.root, 0, -1)
+
     def __populateTreeRec(self, current, depth, playerId):
-        self.nlevels = 0
         # try to do one layer
         pB = self.__genAllPossibleBoards(current, playerId)
         if (len(pB) == 0):
             return
-        if (depth > self.depth):
+        if (depth >= self.depth):
             return
+        if (DEBUG_PRINT_DEPTH_BOARDS):
+            for b in pB:
+                b.print()
+
         current.isParent = True
-        self.nlevels += 1
         for i in range(len(pB)):
             current.children[i] = (Node(pB[i]))
             current.children[i].score = self.__evaluateBoard(current.children[i])
@@ -40,45 +69,22 @@ class minimaxAlgorithm:
     def __genAllPossibleBoards(self, node, playerId):
         allPossBoards = []
         # want to check 8 times
-        for col in range(NUM_CELLS):
-            newBoard = copy.deepcopy(node.board)
-            if (not (isColFull(newBoard, col))):
-                insertCellIntoBoard(newBoard, col, playerId)
-                allPossBoards.append(newBoard[:])
+        for col in range(NUM_COLS):
+            newBoard = Board()
+            newBoard.setBoard(copy.deepcopy(node.board.contents))
+            if not (newBoard.isColFull(col)):
+                newBoard.addCell(col, playerId)
+                allPossBoards.append(newBoard)
         return allPossBoards
 
-    def __getBestAIChild(self, node):
-        lowestScore = 1e10
-        bestPosition = -1
-        for i in range(len(node.children)):
-            if (node.children[i] is not None and node.children[i].score < lowestScore):
-                lowestScore = node.children[i].score
-                bestPosition = i
-        node.score = lowestScore
-        return [lowestScore, bestPosition]
-
-    def __getBestHumanChild(self, node):
-        highestScore = -1e10
-        bestPosition = -1
-        for i in range(len(node.children)):
-            if (node.children[i] is not None and node.children[i].score > highestScore):
-                highestScore = node.children[i].score
-                bestPosition = i
-        node.score = highestScore
-        return [highestScore, bestPosition]
-
     def __evaluateBoard(self, node):
-        # eval function idea from: https://stackoverflow.com/questions/10985000/how-should-i-design-a-good-evaluation-function-for-connect-4
-        # 1st response
-        b = node.board
-        # find number of possible 4's in rows that each player can make and find difference
-        return (countNumPossibleFours(b, 1) - countNumPossibleFours(b, -1))
+        return node.board.evaluateBoard()
 
 
 class Node:
     def __init__(self, board):
         self.children = []
-        for _ in range(NUM_CELLS):
+        for _ in range(NUM_COLS):
             self.children.append(None)
         self.board = board  # this will be the key position
         self.score = 0
@@ -86,12 +92,14 @@ class Node:
 
 
 if __name__ == "__main__":
-    board = []
-    for i in range(NUM_CELLS):
-        board.append([])
-        for j in range(8):
-            board[i].append(0)
-
+    board = Board()
+    test = [[0, 0, -1, -1, 0, 0, 0],
+            [0, 0, 1, 1, 1, -1, 0],
+            [0, 0, -1, -1, -1, 1, 0],
+            [0, 0, 1, 1, 1, -1, 0],
+            [0, 0, 1, 1, -1, -1, 0],
+            [1, 1, -1, 1, -1, -1, 0]]
+    board.setBoard(test)
     # board is [
     # [0,0,0,0,0,0,0,0]
     # [0,0,0,0,0,0,0,0]
@@ -103,6 +111,6 @@ if __name__ == "__main__":
     # [0,0,0,0,0,0,0,0]
     # ]
 
-    test = minimaxAlgorithm(board)
+    test = minimaxAlgorithm(board, 3)
     test.populateTree()
     print(test.getBestMoveFromTree())
