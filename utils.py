@@ -46,12 +46,14 @@ class Board:
             for j in range(NUM_COLS - 1, NUM_COLS - 4 - 1, -1):
                 for k in possWinners:
                     if board[i][j] == board[i + 1][j - 1] == board[i + 2][j - 2] == board[i + 3][j - 3] == k:
+                        print("diag")
                         return k
         # check all TLBR 4s
         for i in range(0, NUM_ROWS - 4 + 1):
             for j in range(0, NUM_COLS - 4 + 1):
                 for k in possWinners:
                     if board[i][j] == board[i + 1][j + 1] == board[i + 2][j + 2] == board[i + 3][j + 3] == k:
+                        print("diag 2")
                         return k
         return 0
 
