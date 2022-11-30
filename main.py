@@ -19,11 +19,11 @@ currPlayer = 1
 AI_ENABLED = True
 if AI_ENABLED:
     ai = minimax.minimaxAlgorithm(board, depth=4)
-bg = (51,51,51)
+bg = (51, 51, 51)
 while not game_over:
     screen.fill(bg)
     pygame.draw.rect(screen, (0, 0, 255), [BUFFER_AROUND, BUFFER_AROUND, GAME_WIDTH - BUFFER_AROUND - BUFFER_AROUND,
-                                               GAME_HEIGHT - BUFFER_AROUND - BUFFER_AROUND])
+                                           GAME_HEIGHT - BUFFER_AROUND - BUFFER_AROUND])
 
     for event in pygame.event.get():
         mX, mY = pygame.mouse.get_pos()
@@ -75,7 +75,7 @@ while not game_over:
         if board.addCell(ai.getBestMoveFromTree(), currPlayer):
             currPlayer *= -1
     if keyboard.is_pressed("p") and DEBUG_KEYBOARD_GET_BOARD_INPS:
-        #prints board
+        # prints board
         board.print()
     drawBoard(board, screen, activeCol)
 

@@ -21,7 +21,7 @@ class minimaxAlgorithm:
 
     def __getBestMoveRec(self, current, playerId):
         if not current.isParent:
-            return (None, self.__evaluateBoard(current))
+            return None, self.__evaluateBoard(current)
 
         if playerId == -1:
             # get all children and compare vals
