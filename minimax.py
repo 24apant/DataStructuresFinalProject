@@ -2,24 +2,41 @@
 # calculates the score
 import copy
 import math
-
+import classes
 from utils import *
+import random
 
 
 class minimaxAlgorithm:
-    def __init__(self, board, depth=1) -> None:
+    def __init__(self, board, depth=1, playerId=-1) -> None:
         self.depth = depth
         self.root = Node(board)
         self.root.score = self.__evaluateBoard(self.root)
-
+        self.numBoards = 0
+        self.numBoardsAB = 0
+        self.alreadyFoundBoards = set()
+        self.playerId = playerId
     def updateBoard(self, board):
         self.root.board = board
+        self.alreadyFoundBoards = set()
         self.populateTree()
-
-    def getBestMoveFromTree(self):
-        return self.__getBestMoveRec(self.root, -1)[0]
-
-    def __getBestMoveRec(self, current, playerId):
+    def getBestMoveDebug(self):
+        self.numBoards = 0
+        ret = self.__getBestMoveRecAB(self.root, self.playerId, math.inf, -math.inf)[0]
+        if ret is None:
+            ret = random.randint(0, NUM_COLS - 1)
+            while self.root.board.isColFull(ret):
+                ret = random.randint(0, NUM_COLS - 1)
+        return ret
+    def getBestMoveFromTreeAB(self):
+        self.numBoardsAB = 0
+        ret =  self.__getBestMoveRecAB(self.root, self.playerId, math.inf, -math.inf)[0]
+        if ret is None:
+            ret = random.randint(0, NUM_COLS-1)
+            while self.root.board.isColFull(ret):
+                ret = random.randint(0, NUM_COLS-1)
+        return ret
+    def __getBestMoveRecAB(self, current, playerId, alpha, beta, print=False):
         if not current.isParent:
             return None, self.__evaluateBoard(current)
 
@@ -28,33 +45,48 @@ class minimaxAlgorithm:
             oldScore = math.inf
             bestMove = None
             for i in range(NUM_COLS):
-                if isinstance(current.children[i], Node):
-                    newMove, newScore = self.__getBestMoveRec(current.children[i], playerId * -1)
+                if isinstance(current.children[i], Node) and current.board.checkForWinner() == 0:
+                    if print: current.children[i].board.print()
+
+                    newMove, newScore = self.__getBestMoveRecAB(current.children[i], playerId * -1, alpha, beta)
+                    self.numBoardsAB += 1
+
                     if newScore < oldScore and not self.root.board.isColFull(i):
                         bestMove = i
                         oldScore = newScore
+                    if oldScore < alpha:
+                        alpha = oldScore
+                    if beta >= alpha:
+                        break
             return (bestMove, oldScore)
 
         elif (playerId == 1):
             oldScore = -math.inf
             bestMove = None
             for i in range(NUM_COLS):
-                if isinstance(current.children[i], Node):
-                    newMove, newScore = self.__getBestMoveRec(current.children[i], playerId * -1)
+                if isinstance(current.children[i], Node) and current.board.checkForWinner() == 0:
+                    if print: current.children[i].board.print()
+                    self.numBoardsAB += 1
+                    newMove, newScore = self.__getBestMoveRecAB(current.children[i], playerId * -1, alpha, beta)
                     if newScore > oldScore and not self.root.board.isColFull(i):
                         bestMove = i
                         oldScore = newScore
+                    if oldScore > beta:
+                        beta = oldScore
+                    if beta >= alpha:
+                        break
             return (bestMove, oldScore)
 
+
     def populateTree(self):
-        self.__populateTreeRec(self.root, 0, -1)
+        self.__populateTreeRec(self.root, 0, self.playerId)
 
     def __populateTreeRec(self, current, depth, playerId):
         # try to do one layer
         pB = self.__genAllPossibleBoards(current, playerId)
         if (len(pB) == 0):
             return
-        if (depth >= self.depth):
+        if depth >= self.depth:
             return
         if (DEBUG_PRINT_DEPTH_BOARDS):
             for b in pB:
@@ -70,9 +102,10 @@ class minimaxAlgorithm:
         allPossBoards = []
         # want to check 8 times
         for col in range(NUM_COLS):
-            newBoard = Board()
+            newBoard = classes.Board()
             newBoard.setBoard(copy.deepcopy(node.board.contents))
-            if not (newBoard.isColFull(col)):
+            if not (newBoard.isColFull(col) and not convBoardToB3(newBoard) in self.alreadyFoundBoards):
+                self.alreadyFoundBoards.add(convBoardToB3(newBoard))
                 newBoard.addCell(col, playerId)
                 allPossBoards.append(newBoard)
         return allPossBoards
@@ -92,25 +125,18 @@ class Node:
 
 
 if __name__ == "__main__":
-    board = Board()
-    test = [[0, 0, -1, -1, 0, 0, 0],
-            [0, 0, 1, 1, 1, -1, 0],
-            [0, 0, -1, -1, -1, 1, 0],
-            [0, 0, 1, 1, 1, -1, 0],
-            [0, 0, 1, 1, -1, -1, 0],
-            [1, 1, -1, 1, -1, -1, 0]]
-    board.setBoard(test)
+    board = classes.Board()
     # board is [
-    # [0,0,0,0,0,0,0,0]
-    # [0,0,0,0,0,0,0,0]
-    # [0,0,0,0,0,0,0,0]
-    # [0,0,0,0,0,0,0,0]
-    # [0,0,0,0,0,0,0,0]
-    # [0,0,0,0,0,0,0,0]
-    # [0,0,0,0,0,0,0,0]
-    # [0,0,0,0,0,0,0,0]
+    # [0,0,0,0,0,0,0]
+    # [0,0,0,0,0,0,0]
+    # [0,0,0,0,0,0,0]
+    # [0,0,0,0,0,0,0]
+    # [0,0,0,0,0,0,0]
+    # [0,0,0,1,0,0,0]
     # ]
 
-    test = minimaxAlgorithm(board, 3)
+    test = minimaxAlgorithm(board, 4)
     test.populateTree()
-    print(test.getBestMoveFromTree())
+    print(test.getBestMoveFromTreeAB())
+    print(test.numBoardsAB)
+    test.root.board.print()
