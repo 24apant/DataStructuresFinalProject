@@ -54,8 +54,10 @@ def blitBubbleContent(message, font, gui, exit=False, hint=None):
         gui.blit(text, newAnchor)
 
     else:
+        btw = BUBBLE_TEXT_WRAP
         if hint is not None:
             newMsg = hint
+            btw *= 2
         else:
             newMsg = message
         arr = [""]
@@ -64,18 +66,24 @@ def blitBubbleContent(message, font, gui, exit=False, hint=None):
         counter = 0
         charCounter = 0
         for q in l:
-            charCounter += len(q)
-            if charCounter >= BUBBLE_TEXT_WRAP:
+            if charCounter + len(q) >= btw:
                 charCounter = 0
                 arr.append("")
                 counter += 1
             arr[counter] += q + " "
+            charCounter += len(q)
 
         for i in range(len(arr)):
             msg = arr[i]
             text = font.render(msg, False, (0, 0, 0))
+            if hint is not None:
+                text = font.render(msg, False, YELLOW_PLAYER_COLOR)
             newAnchor = (BUBBLE_TEXT_CONTENT_TL_ANCHOR[0], BUBBLE_TEXT_CONTENT_TL_ANCHOR[1] + (i * TEXT_SIZE))
-            gui.blit(text, newAnchor)
+            if hint is not None:
+                gui.blit(text, (newAnchor[0], newAnchor[1] + 10 * BUFFER_AROUND))
+            else:
+                gui.blit(text, newAnchor)
+
 
 
 if __name__ == "__main__":
