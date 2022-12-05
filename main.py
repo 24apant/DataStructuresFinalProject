@@ -14,6 +14,7 @@ clock = pygame.time.Clock()
 board = classes.Board()
 col_dims = []
 bg = BACKGROUND_COLOR  # background is dynamic
+
 for i in range(NUM_COLS):
     col_dims.append([BUFFER_AROUND + (CELL_SIZE * i), BUFFER_AROUND + (i * CELL_SIZE) + CELL_SIZE])
 
@@ -76,20 +77,6 @@ while not game_over:
                             print("AI messed up")
                         if board.addCell(ai.getBestMoveFromTreeAB(), currPlayer):
                             currPlayer *= -1
-                            if board.checkForWinner() != 0:
-                                frozen = True
-                                if board.checkForWinner() == 1:
-                                    bg = YELLOW_PLAYER_COLOR
-                                    print("Winner")
-
-                                elif board.checkForWinner() == 2:
-                                    bg = (255, 255, 255)
-                                    print("Tie")
-
-                                else:
-                                    bg = (255, 0, 0)
-                                    print("Loser")
-
     if AI_ENABLED and not frozen and currPlayer == -1:
         ai.updateBoard(board)
         if board.addCell(ai.getBestMoveFromTreeAB(), currPlayer):
