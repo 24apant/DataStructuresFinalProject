@@ -22,7 +22,7 @@ activeCol = -1
 currPlayer = 1
 cTime = 0
 
-AI_ENABLED = True
+AI_ENABLED = False
 DOUBLE_AI = False
 if AI_ENABLED:
     ai = minimax.minimaxAlgorithm(board, depth=AI_DEPTH)

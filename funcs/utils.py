@@ -1,16 +1,20 @@
 import pygame
-import classes
+from funcs import classes
 
 from settings import *
 
 
+#Universal util functions
+
+# Draws a cell at a row and column
 def drawCell(screen, color, row, cols):
     pygame.draw.circle(screen, color, [BUFFER_AROUND + (cols * CELL_SIZE + CELL_SIZE / 2),
                                        BUFFER_AROUND + (row * CELL_SIZE + CELL_SIZE / 2)],
                        CELL_SIZE / 2 - BUFFER_AROUND / 2)
 
-
-def drawBoard(b, screen, activecol):
+# Draw the entire board for a board 'b' the target gui, and the 'active' column aka the column which the player is
+# hovering
+def drawBoard(b, screen, activecol=None):
     board = b.contents
     for i in range(len(board)):
         for j in range(len(board[i])):
@@ -19,13 +23,13 @@ def drawBoard(b, screen, activecol):
                 drawCell(screen, (240, 230, 140), i, j)
             elif board[i][j] == -1:
                 drawCell(screen, (255, 0, 0), i, j)
-            elif j == activecol:
+            elif activecol is not None and j == activecol:
                 drawCell(screen, (192, 192, 192), i, j)
             else:
                 drawCell(screen, (51, 51, 51), i, j)
 
 
-# covert board to b3
+# covert board to base 3
 def convBoardToB3(board):
     if not isinstance(board, classes.Board):
         return
@@ -46,7 +50,7 @@ def convBoardToB3(board):
         exponentMult -= 1
     return b3
 
-
+# Writes something on the bubble in trainer
 def blitBubbleContent(message, font, gui, exit=False, hint=None):
     if exit:
         text = font.render("Press 'esc' to main menu", False, (200, 200, 200))
@@ -85,7 +89,7 @@ def blitBubbleContent(message, font, gui, exit=False, hint=None):
                 gui.blit(text, newAnchor)
 
 
-
+# Tests
 if __name__ == "__main__":
     test = classes.Board()
     testBoard = [

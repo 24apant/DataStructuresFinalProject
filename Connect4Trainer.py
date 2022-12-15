@@ -1,37 +1,32 @@
-# connect 4 pygame
+# connect 4 Training session
 import sys
-
-import pygame
-
-import minimax
-import trainingSession
-import utils
-from utils import *
+from funcs.utils import *
 import keyboard
-import classes
-import oldBoards
+from funcs import classes, oldBoards, trainingSession
 
 pygame.init()
 pygame.font.init()
 my_font = pygame.font.SysFont('Comic Sans MS', 15)
+titleFont = pygame.font.SysFont('Comic Sans MS', 40)
 game_over = False
 seshActive = False
 
 levelSelected = -1
 sesh = trainingSession.trainingSesh(1)
 screen = pygame.display.set_mode((GAME_WIDTH, GAME_HEIGHT))
-bubbleTxt = pygame.transform.scale(pygame.image.load("txtBubble.png").convert(), BUBBLE_TEXT_SIZE)
+bubbleTxt = pygame.transform.scale(pygame.image.load("funcs/txtBubble.png").convert(), BUBBLE_TEXT_SIZE)
 BubbleMessage = "Try out a move!"
 
 clock = pygame.time.Clock()
 bg = BACKGROUND_COLOR  # background is dynamic
 levs = []
 
-for i in range(3):
+for i in range(2):
     levs.append([])
     for j in range(3):
         # add a level for each one
-        levs[i].append(classes.Level(90 + 150 * j, 200 + 100 * i, 3 * i + (j + 1)))
+        if 3 * i + (j + 1) != 6:
+            levs[i].append(classes.Level(90 + 150 * j, 200 + 100 * i, 3 * i + (j + 1)))
 board = classes.Board()
 fullSessionOver = False
 
@@ -40,6 +35,8 @@ while not fullSessionOver:
     # make a level selector choosing levels from 1 to 10
     # draw levels and add click listeners in their box
     if not seshActive:
+        txt =titleFont.render("Scenarios Mode",False,(0,0,0))
+        screen.blit(txt,(GAME_WIDTH/4, 0))
         for st in levs:
             for lev in st:
                 lev.draw(screen, my_font, lev.color)
@@ -85,7 +82,7 @@ while not fullSessionOver:
                     for l1 in st:
                         if l1.isSelected(mX, mY):
                             # create a training sesh with
-                            if l1.scNum >= len(oldBoards.boards):
+                            if l1.scNum > len(oldBoards.boards):
                                 print("Coming Soon!")
                             else:
                                 levelSelected = l1.scNum

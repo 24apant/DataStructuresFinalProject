@@ -1,11 +1,9 @@
-import minimax
-import oldBoards
-import pygame
-import classes
-from utils import *
+from funcs import minimax, oldBoards
+from funcs.utils import *
 
 
 # create a new board with the oldBoard Level needed
+# I put this in its own class because I want to make a universal 'game' class in the future
 class trainingSesh:
     def __init__(self, levelNum):
         self.board = classes.Board()
